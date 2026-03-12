@@ -2,15 +2,8 @@ import os
 from flask import Flask, render_template, redirect, url_for, session, request
 from config import Config
 from database.db import db, init_db
-from models.user_model import User
-from routes.chatbot_routes import chatbot_bp
 from utils.logger import setup_logging
-from models.farmer_model import FarmerProfile
-from routes.marketplace_routes import market_bp
-from models import User, Contract, InsurancePolicy
 from flask_migrate import Migrate
-from models.contract_model import Contract
-from models.insurance_model import InsurancePolicy
 
 # --- 1. LANGUAGE DICTIONARY ---
 LANGUAGES = {
@@ -32,15 +25,7 @@ LANGUAGES = {
         'hero_title': 'రైతులకు భవిష్యత్తును కనెక్ట్ చేస్తోంది',
         'hero_subtitle': 'స్మార్ట్ కాంట్రాక్టులు, AI మార్గదర్శకత్వం మరియు నేరుగా మార్కెట్ యాక్సెస్.',
         'login': 'లాగిన్',
-        'register': 'రిజిస్టర్',
-        'feature_1_title': 'AI వ్యవసాయ సహాయకుడు',
-        'feature_1_desc': 'మీ జేబులో నిజ-సమయ పంట సలహాలు మరియు తెగుళ్ల పరిష్కారాలను పొందండి.',
-        'feature_2_title': 'స్మార్ట్ మార్కెట్‌ప్లేస్',
-        'feature_2_desc': 'మధ్యవర్తులు లేకుండా రైతులకు మరియు కొనుగోలుదారులకు మధ్య సురక్షితమైన ఒప్పందాలు.',
-        'feature_3_title': 'పంట భీమా',
-        'feature_3_desc': 'అనూహ్య వాతావరణం మరియు నష్టాల నుండి మీ పంటను రక్షించుకోండి.',
-        'feature_4_title': 'నేరుగా చెల్లింపులు',
-        'feature_4_desc': 'మీ పంటలకు వేగమైన, సురక్షితమైన మరియు పారదర్శకమైన డిజిటల్ చెల్లింపులు.'
+        'register': 'రిజిస్టర్'
     }
 }
 
@@ -48,27 +33,30 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
 
-    # --- FIXED DATABASE CONFIGURATION ---
+    # --- DATABASE CONFIGURATION ---
     database_url = os.environ.get('DATABASE_URL')
+
     if database_url:
         if database_url.startswith("postgres://"):
             database_url = database_url.replace("postgres://", "postgresql://", 1)
         app.config['SQLALCHEMY_DATABASE_URI'] = database_url
-        app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {}
     else:
         app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.db'
-        app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {}
 
-    # Database and Logging Init
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+    # Logging
     if not os.path.exists('logs'):
         os.makedirs('logs')
-    setup_logging(app)
-    init_db(app)
-    
-    migrate = Migrate(app, db) 
 
-    # --- CLOUD DATABASE AUTO-INITIALIZE ---
-    # This block runs every time Render starts the app
+    setup_logging(app)
+
+    # Database init
+    init_db(app)
+
+    migrate = Migrate(app, db)
+
+    # --- CREATE TABLES ---
     with app.app_context():
         try:
             from models.user_model import User
@@ -77,11 +65,13 @@ def create_app():
             from models.farmer_model import FarmerProfile
             from models.buyer_model import BuyerProfile
             from models.insurance_model import InsurancePolicy
-            
-            db.create_all()  
-            print("✅ AgroSmart 2026: Database tables verified/created successfully!")
+
+            db.create_all()
+
+            print("AgroSmart database initialized")
+
         except Exception as e:
-            print(f"❌ Database Error: {e}")
+            print("Database Error:", e)
 
     @app.context_processor
     def inject_lang():
@@ -93,27 +83,26 @@ def create_app():
         session['lang'] = lang_code
         return redirect(request.referrer or url_for('index'))
 
-    # --- BLUEPRINTS ---
-    with app.app_context():
-        from routes.auth_routes import auth_bp
-        from routes.contract_routes import contract_bp
-        from routes.chatbot_routes import chatbot_bp
-        from routes.farmer_routes import farmer_bp
-        from routes.buyer_routes import buyer_bp
-        from routes.insurance_routes import insurance_bp
-        from routes.payment_routes import payment_bp
-        from routes.marketplace_routes import market_bp
-        from routes.procurement_routes import procurement_bp
+    # --- IMPORT BLUEPRINTS ---
+    from routes.auth_routes import auth_bp
+    from routes.contract_routes import contract_bp
+    from routes.chatbot_routes import chatbot_bp
+    from routes.farmer_routes import farmer_bp
+    from routes.buyer_routes import buyer_bp
+    from routes.insurance_routes import insurance_bp
+    from routes.payment_routes import payment_bp
+    from routes.marketplace_routes import market_bp
+    from routes.procurement_routes import procurement_bp
 
-        app.register_blueprint(auth_bp, url_prefix='/auth')
-        app.register_blueprint(contract_bp, url_prefix='/contracts')
-        app.register_blueprint(chatbot_bp, url_prefix='/api/chat')
-        app.register_blueprint(payment_bp, url_prefix='/payments')
-        app.register_blueprint(insurance_bp, url_prefix='/insurance')
-        app.register_blueprint(farmer_bp, url_prefix='/farmer')
-        app.register_blueprint(buyer_bp, url_prefix='/buyer')
-        app.register_blueprint(procurement_bp, url_prefix='/procurement')
-        app.register_blueprint(market_bp, url_prefix='/market')
+    app.register_blueprint(auth_bp, url_prefix='/auth')
+    app.register_blueprint(contract_bp, url_prefix='/contracts')
+    app.register_blueprint(chatbot_bp, url_prefix='/api/chat')
+    app.register_blueprint(payment_bp, url_prefix='/payments')
+    app.register_blueprint(insurance_bp, url_prefix='/insurance')
+    app.register_blueprint(farmer_bp, url_prefix='/farmer')
+    app.register_blueprint(buyer_bp, url_prefix='/buyer')
+    app.register_blueprint(procurement_bp, url_prefix='/procurement')
+    app.register_blueprint(market_bp, url_prefix='/market')
 
     @app.route('/')
     def index():
@@ -122,6 +111,7 @@ def create_app():
                 return redirect(url_for(f"{session['role']}.dashboard"))
             except:
                 return redirect(url_for('auth.login'))
+
         return render_template('index.html')
 
     @app.errorhandler(404)
@@ -135,11 +125,8 @@ def create_app():
 
     return app
 
+
 app = create_app()
 
 if __name__ == "__main__":
-<<<<<<< HEAD
-    app.run(debug=True, use_reloader=True)
-=======
-    app.run(debug=True, use_reloader=True)
->>>>>>> d091154 (Update AgroSmart deployment fixes)
+    app.run(debug=True)

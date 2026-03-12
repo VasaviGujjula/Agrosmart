@@ -1,0 +1,42 @@
+{% extends "common/base.html" %}
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow border-0">
+        <div class="card-header bg-success text-white py-3">
+            <h4 class="mb-0">Review Contract Proposal</h4>
+        </div>
+        <div class="card-body p-4">
+            <div class="row">
+                <div class="col-md-6 border-end">
+                    <h5 class="text-success">Buyer Information</h5>
+                    <p><strong>Name:</strong> {{ contract.buyer.username }}</p>
+                    <p><strong>Contact:</strong> {{ contract.buyer.phone or 'Not provided' }}</p>
+                    <p><strong>Email:</strong> {{ contract.buyer.email }}</p>
+                </div>
+                
+                <div class="col-md-6 ps-4">
+                    <h5 class="text-success">Contract Terms</h5>
+                    <p><strong>Crop:</strong> {{ contract.crop_type }}</p>
+                    <p><strong>Quantity:</strong> {{ contract.quantity_quintals }} Quintals</p>
+                    <p><strong>Price:</strong> ₹{{ contract.price_per_quintal }} per Quintal</p>
+                    <p><strong>Delivery Date:</strong> {{ contract.delivery_date }}</p>
+                </div>
+            </div>
+
+            <hr class="my-4">
+            
+            <div class="alert alert-info">
+                <strong>Legal Note:</strong> By clicking "Accept and Sign", you agree to fulfill the quality specifications and delivery timelines mentioned above.
+            </div>
+
+            <div class="d-flex justify-content-between mt-4">
+                <a href="{{ url_for('farmer.dashboard') }}" class="btn btn-outline-secondary">Back to Dashboard</a>
+                
+                <form action="{{ url_for('contract.accept_contract', contract_id=contract.id) }}" method="POST">
+                    <button type="submit" class="btn btn-success btn-lg px-5">Accept and Sign Contract</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

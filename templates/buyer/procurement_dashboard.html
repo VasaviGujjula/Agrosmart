@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Procurement Dashboard - Available Farmers</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; }
+        .dashboard-header { background: #2c3e50; color: white; padding: 2rem 0; margin-bottom: 2rem; }
+        .card { border: none; box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); }
+    </style>
+</head>
+<body>
+
+<header class="dashboard-header">
+    <div class="container text-center">
+        <h1>Procurement Dashboard</h1>
+        <p class="lead">View and connect with registered farmers for crop procurement</p>
+    </div>
+</header>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3 class="mb-0">Available Farmers</h3>
+                    <span class="badge bg-success p-2">{{ farmers|length }} Farmers Registered</span>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>#</th>
+                                <th>Farmer Name</th>
+                                <th>Mobile Number</th>
+                                <th>Email Address</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for farmer in farmers %}
+<tr>
+    <td>{{ loop.index }}</td>
+    <td>{{ farmer.username }}</td>
+    <td>{{ farmer.phone }}</td> <td>{{ farmer.email }}</td>
+    <td>
+        <a href="tel:{{ farmer.phone }}" class="btn btn-sm btn-success">Call</a>
+    </td>
+</tr>
+{% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer class="mt-5 py-3 text-center text-muted">
+    <p>&copy; 2026 AgroSmart Procurement System</p>
+</footer>
+
+</body>
+</html>

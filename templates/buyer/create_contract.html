@@ -1,0 +1,127 @@
+{% extends "common/base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow-lg border-0">
+        <div class="card-header bg-success text-white py-3">
+            <h4 class="mb-0">
+                <i class="bi bi-file-earmark-medical"></i> 
+                Contract Proposal for {{ farmer.username if farmer else 'Marketplace' }}
+            </h4>
+        </div>
+        
+        <div class="card-body p-4">
+            <div class="alert alert-secondary border-0 shadow-sm mb-4">
+                <div class="row align-items-center">
+                    <div class="col-md-1 text-center d-none d-md-block">
+                        <i class="bi bi-person-circle fs-1 text-success"></i>
+                    </div>
+                    <div class="col-md-11">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="fw-bold text-dark mb-0">Farmer Contact Information</h6>
+                            {% if farmer.phone %}
+                            <a href="https://wa.me/{{ farmer.phone }}" target="_blank" class="btn btn-sm btn-outline-success">
+                                <i class="bi bi-whatsapp"></i> Chat Now
+                            </a>
+                            {% endif %}
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <small class="text-muted d-block">Full Name</small>
+                                <span class="fw-bold">{{ farmer.username }}</span>
+                            </div>
+                            <div class="col-md-4">
+                                <small class="text-muted d-block">Email Address</small>
+                                <span class="fw-bold">{{ farmer.email }}</span>
+                            </div>
+                            <div class="col-md-4">
+                                <small class="text-muted d-block">Mobile Number</small>
+                                <span class="fw-bold text-success">
+                                    <i class="bi bi-telephone"></i> 
+                                    {{ farmer.phone if farmer.phone else 'Not Provided' }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="my-4">
+
+            <form method="POST">
+                <input type="hidden" name="farmer_id" value="{{ farmer.id if farmer else '' }}">
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Shop / Wholesale Name</label>
+                        <input type="text" name="shop_name" class="form-control" placeholder="E.g. Sri Lakshmi Wholesale" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Your Contact Number</label>
+                        <input type="text" name="buyer_mobile" class="form-control" placeholder="Enter your mobile number" required>
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-bold">Crop Type</label>
+                        <input type="text" name="crop_type" class="form-control" placeholder="e.g. Rice, Tomato" required>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-bold">Quantity (Quintals)</label>
+                        <input type="number" step="0.01" name="quantity_quintals" class="form-control" required>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-bold">Price per Quintal (₹)</label>
+                        <input type="number" step="0.01" name="price_per_quintal" class="form-control" required>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Delivery Date</label>
+                        <input type="date" name="delivery_date" class="form-control" required>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Delivery Location</label>
+                        <input type="text" id="locationInput" name="location" class="form-control" placeholder="Full address for delivery" required>
+                    </div>
+
+                    <div class="col-12 mb-4">
+                        <div id="mapPreview" class="rounded shadow-sm border overflow-hidden" style="display: none;">
+                            <div class="bg-light p-2 small text-muted border-bottom">
+                                <i class="bi bi-geo-alt-fill"></i> Location Preview for Logistics
+                            </div>
+                            <iframe id="mapFrame" width="100%" height="250" frameborder="0" style="border:0" src=""></iframe>
+                        </div>
+                    </div>
+
+                    <div class="col-12 mb-4">
+                        <label class="form-label fw-bold">Quality Terms & Specifications</label>
+                        <textarea name="quality_terms" class="form-control" rows="3" placeholder="E.g. Moisture < 10%, No discoloration, Grade A quality"></textarea>
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-success btn-lg py-3 fw-bold shadow-sm">
+                        <i class="bi bi-shield-check"></i> Create Contract & Proceed to Payment
+                    </button>
+                    <a href="{{ url_for('buyer.dashboard') }}" class="btn btn-light border text-muted">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    const locInput = document.getElementById('locationInput');
+    const mapBox = document.getElementById('mapPreview');
+    const mapFrame = document.getElementById('mapFrame');
+
+    locInput.addEventListener('blur', function() {
+        const address = this.value;
+        if (address.length > 2) {
+            mapBox.style.display = 'block';
+            const cleanAddress = encodeURIComponent(address);
+            // Updated Google Maps Embed URL
+            mapFrame.src = `https://maps.google.com/maps?q=${cleanAddress}&t=&z=13&ie=UTF8&iwloc=&output=embed`;
+        }
+    });
+</script>
+{% endblock %}

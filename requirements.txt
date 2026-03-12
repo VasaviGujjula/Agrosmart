@@ -1,0 +1,10 @@
+flask
+flask-sqlalchemy
+flask-login
+flask-migrate
+psycopg2-binary
+gunicorn
+groq
+python-dotenv
+requests
+fpdf

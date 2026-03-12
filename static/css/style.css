@@ -1,0 +1,32 @@
+:root {
+    --primary-green: #2c5e1a;
+    --accent-yellow: #f2e3d5;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.card {
+    border-radius: 12px;
+    border: none;
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.navbar-brand {
+    font-size: 1.5rem;
+}
+
+/* Chatbot Widget Styles */
+#chatbot-container {
+    z-index: 1050;
+}
+
+#chat-box {
+    scrollbar-width: thin;
+    font-size: 0.9rem;
+}

@@ -1,0 +1,36 @@
+{% extends "common/base.html" %}
+{% block content %}
+<div class="container text-center py-5">
+    <div class="spinner-border text-success mb-3" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+    <h3 class="fw-bold">Sending Notification to {{ farmer_name }}...</h3>
+    <p class="text-muted">Opening WhatsApp. Please click 'Send' in the WhatsApp window.</p>
+    
+    <hr class="my-4">
+    
+    <div class="alert alert-warning d-inline-block">
+        <strong>If WhatsApp did not open:</strong><br>
+        <a href="{{ url }}" target="_blank" class="btn btn-success mt-2 mb-2">
+            <i class="bi bi-whatsapp"></i> Click here to Send Manually
+        </a>
+        <br>
+        <a href="{{ url_for('buyer.payment_page', contract_id=contract_id) }}" class="btn btn-outline-primary mt-2">
+            Proceed to Payment
+        </a>
+    </div>
+</div>
+
+<script>
+    // This part triggers the "Direct" feel you want
+    
+    // 1. Try to open WhatsApp immediately in a new tab
+    const whatsappWindow = window.open("{{ url|safe }}", "_blank");
+
+    // 2. Redirect the current page to the Payment screen after 3 seconds
+    // Updated from 'buyer.payment' to 'buyer.payment_page' to fix the error
+    setTimeout(function() {
+        window.location.href = "{{ url_for('buyer.payment_page', contract_id=contract_id) }}";
+    }, 3000);
+</script>
+{% endblock %}

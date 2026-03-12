@@ -1,0 +1,57 @@
+{% extends "common/base.html" %}
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 text-center">
+            <div class="card shadow-lg border-0 rounded-4 p-5">
+                <div class="mb-4">
+                    <i class="bi bi-check-circle-fill text-success" style="font-size: 5rem;"></i>
+                </div>
+                <h2 class="fw-bold text-dark">Payment Successful!</h2>
+                <p class="text-muted fs-5">Your payment for <strong>{{ contract.crop_type }}</strong> has been processed securely.</p>
+                
+                <div class="bg-light rounded-3 p-3 mb-4 text-start">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Transaction ID:</span>
+                        <span class="fw-bold text-truncate ms-2">{{ contract.transaction_id }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Amount Paid:</span>
+                        <span class="fw-bold text-success">₹{{ contract.quantity_quintals * contract.price_per_quintal }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted">Status:</span>
+                        <span class="badge bg-success">Paid</span>
+                    </div>
+                </div>
+
+                <div class="alert alert-info small border-0">
+                    <i class="bi bi-info-circle"></i> The farmer has been notified. The contract will be finalized once they sign.
+                </div>
+
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('buyer.dashboard') }}" class="btn btn-success btn-lg shadow-sm">
+                        Go to Dashboard
+                    </a>
+                    <button onclick="window.print()" class="btn btn-outline-secondary btn-sm border-0">
+                        <i class="bi bi-printer"></i> Print Receipt
+                    </button>
+                </div>
+            </div>
+            
+            <p class="mt-4 text-muted small">Thank you for using Agrosmart for secure agricultural trading.</p>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bi-check-circle-fill {
+        display: inline-block;
+        animation: pop 0.5s cubic-bezier(0.26, 0.53, 0.74, 1.48) forwards;
+    }
+    @keyframes pop {
+        0% { transform: scale(0.5); opacity: 0; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+</style>
+{% endblock %}

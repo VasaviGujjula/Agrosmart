@@ -1,0 +1,32 @@
+{% extends "common/base.html" %}
+{% block content %}
+<h3>Available Contract Offers</h3>
+<div class="table-responsive">
+    <table class="table table-hover bg-white shadow-sm">
+        <thead class="table-success">
+            <tr>
+                <th>Crop</th>
+                <th>Quantity</th>
+                <th>Price/Quintal</th>
+                <th>Delivery Date</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in open_contracts %}
+            <tr>
+                <td>{{ c.crop_type }}</td>
+                <td>{{ c.quantity_quintals }}</td>
+                <td>₹{{ c.price_per_quintal }}</td>
+                <td>{{ c.delivery_date.strftime('%Y-%m-%d') }}</td>
+                <td>
+                    <form action="{{ url_for('contract.accept_contract', contract_id=c.id) }}" method="POST">
+                        <button class="btn btn-sm btn-outline-success">Accept & Sign</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

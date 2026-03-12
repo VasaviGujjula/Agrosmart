@@ -1,0 +1,56 @@
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<div class="container py-4">
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-header bg-success text-white py-3">
+                    <h5 class="mb-0">Live Mandi Prices (All India)</h5>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Market</th>
+                                <th>Commodity</th>
+                                <th>Variety</th>
+                                <th>Modal Price (₹/Q)</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in prices %}
+                            <tr>
+                                <td>
+                                    <strong>{{ item.market }}</strong><br>
+                                    <small class="text-muted">{{ item.district }}</small>
+                                </td>
+                                <td><strong>{{ item.commodity }}</strong></td>
+                                <td>{{ item.variety }}</td>
+                                <td class="text-success fw-bold fs-5">₹{{ item.price }}</td>
+                                <td>{{ item.date }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Agricultural News</h5>
+                </div>
+                <div class="list-group list-group-flush">
+                    {% for n in news %}
+                    <a href="{{ n.url }}" target="_blank" class="list-group-item list-group-item-action py-3">
+                        <h6 class="mb-1 fw-bold">{{ n.title }}</h6>
+                        <small class="text-muted">{{ n.source }} • {{ n.date }}</small>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

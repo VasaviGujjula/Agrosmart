@@ -1,0 +1,140 @@
+{% extends "common/base.html" %}
+{% block content %}
+<div class="card shadow-sm mt-4">
+    <div class="card-body">
+        <h3 class="fw-bold text-success mb-4">My Active Contracts</h3>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Crop</th>
+                        <th>Quantity</th>
+                        <th>Farmer Details</th>
+                        <th>Status</th>
+                        <th>Action / Signature</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for contract in contracts %}
+                    <tr>
+                        <td>{{ contract.crop_type }}</td>
+                        <td>{{ contract.quantity_quintals }} qtl</td>
+                        <td>
+                            {% if contract.farmer %}
+                                <strong>Name:</strong> {{ contract.farmer.username }} <br>
+                                <strong>Phone:</strong> {{ contract.farmer.phone }}
+                            {% else %}
+                                <span class="text-muted">Waiting for Farmer...</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {# Enhanced Status Badge Logic #}
+                            <span class="badge {% if contract.status == 'Delivered' %}bg-success{% elif contract.status == 'Shipped' %}bg-info text-dark{% elif contract.status == 'Open' %}bg-primary{% else %}bg-secondary{% endif %}">
+                                {{ contract.status }}
+                            </span>
+                        </td>
+                        <td>
+                            {# --- EXISTING SIGNATURE LOGIC --- #}
+                            {% if contract.status == 'Paid (Awaiting Farmer Signature)' and not contract.farmer_signature %}
+                            <div class="card p-2 shadow-sm border-0 bg-light" style="max-width: 300px;">
+                                <h6 class="fw-bold text-success small">Sign to Accept</h6>
+                                <div style="border: 2px dashed #198754; border-radius: 8px; background: #fff;">
+                                    <canvas id="signature-pad-{{ contract.id }}" class="signature-pad" width="280" height="120" style="touch-action: none; cursor: crosshair;"></canvas>
+                                </div>
+                                
+                                <div class="mt-2 d-flex gap-2">
+                                    <button type="button" class="btn btn-outline-secondary btn-sm clear-btn" data-id="{{ contract.id }}">Clear</button>
+                                    <form action="{{ url_for('farmer.accept_contract', contract_id=contract.id) }}" method="POST" class="signature-form" data-id="{{ contract.id }}">
+                                        <input type="hidden" name="signature_data" id="signature_data_{{ contract.id }}">
+                                        <button type="submit" class="btn btn-success btn-sm">Confirm & Sign</button>
+                                    </form>
+                                </div>
+                            </div>
+                            
+                            {# --- EXISTING SIGNED VIEW + NEW STATUS BUTTONS --- #}
+                            {% elif contract.farmer_signature %}
+                                <div class="text-center">
+                                    <img src="{{ contract.farmer_signature }}" alt="Signed" style="width: 100px; height: auto; border-bottom: 1px solid #ccc;">
+                                    <br><small class="text-success"><i class="bi bi-check-circle"></i> Signed</small>
+                                </div>
+
+                                {# NEW: Status Update Buttons #}
+                                <div class="mt-2">
+                                    {% if contract.status == 'Paid' and current_user.role == 'Farmer' %}
+                                        <form action="{{ url_for('contract.update_status', id=contract.id, new_status='Shipped') }}" method="POST">
+                                            <button type="submit" class="btn btn-primary btn-sm w-100">Mark as Shipped</button>
+                                        </form>
+                                    {% elif contract.status == 'Shipped' and current_user.role == 'Buyer' %}
+                                        <form action="{{ url_for('contract.update_status', id=contract.id, new_status='Delivered') }}" method="POST">
+                                            <button type="submit" class="btn btn-success btn-sm w-100">Confirm Delivery</button>
+                                        </form>
+                                    {% endif %}
+                                </div>
+
+                            {% else %}
+                                <span class="text-muted small">No action required</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+
+                    {# --- EXISTING ACKNOWLEDGMENT BLOCK --- #}
+                    {% if contract.farmer_signature %}
+                    <tr class="table-light">
+                        <td colspan="5">
+                            <div class="row py-3">
+                                <div class="col-6 offset-6 text-center">
+                                    <h6 class="fw-bold text-dark">Farmer's Acknowledgment</h6>
+                                    <img src="{{ contract.farmer_signature }}" alt="Farmer Signature" 
+                                         style="width: 200px; border-bottom: 2px solid #333;">
+                                    <p class="small text-muted mb-0">{{ contract.farmer.username }}</p>
+                                    <small class="text-muted" style="font-size: 0.7rem;">Digitally Verified via AgroSmart</small>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endif %}
+
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+
+<script>
+    // Existing Signature Pad Logic - No Changes Made
+    const pads = {};
+
+    document.querySelectorAll('.signature-pad').forEach(canvas => {
+        const id = canvas.id.split('-').pop();
+        pads[id] = new SignaturePad(canvas, {
+            backgroundColor: 'rgba(255, 255, 255, 0)',
+            penColor: 'rgb(0, 0, 0)'
+        });
+    });
+
+    document.querySelectorAll('.clear-btn').forEach(button => {
+        button.addEventListener('click', () => {
+            const id = button.getAttribute('data-id');
+            pads[id].clear();
+        });
+    });
+
+    document.querySelectorAll('.signature-form').forEach(form => {
+        form.addEventListener('submit', (e) => {
+            const id = form.getAttribute('data-id');
+            const signaturePad = pads[id];
+            
+            if (signaturePad.isEmpty()) {
+                alert("Please provide a signature first.");
+                e.preventDefault();
+            } else {
+                const dataUrl = signaturePad.toDataURL();
+                document.getElementById('signature_data_' + id).value = dataUrl;
+            }
+        });
+    });
+</script>
+{% endblock %}

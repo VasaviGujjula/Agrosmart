@@ -1,0 +1,52 @@
+{% extends "common/base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-success">Available Crop Contracts</h2>
+        <span class="badge bg-primary">Marketplace</span>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Crop Type</th>
+                        <th>Buyer Name</th>
+                        <th>Quantity (Quintals)</th>
+                        <th>Price (per Quintal)</th>
+                        <th>Location</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+    {% for contract in contracts %}
+    <tr>
+        <td><strong>{{ contract.crop_type }}</strong></td>
+        <td>{{ contract.buyer.name if contract.buyer else 'System Buyer' }}</td>
+        <td>{{ contract.quantity_quintals }}</td>
+        <td>₹{{ contract.price_per_quintal }}</td>
+        <td>{{ contract.delivery_date.strftime('%d %b %Y') }}</td>
+        <td>
+            <form action="{{ url_for('contract.accept_contract', contract_id=contract.id) }}" method="POST">
+                <button type="submit" class="btn btn-sm btn-success shadow-sm">
+                    <i class="bi bi-pencil-square"></i> Accept & Sign
+                </button>
+            </form>
+        </td>
+    </tr>
+    {% else %}
+    <tr>
+        <td colspan="6" class="text-center text-muted p-4">
+            <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+            No open contracts available in your region right now.
+        </td>
+    </tr>
+    {% endfor %}
+</tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

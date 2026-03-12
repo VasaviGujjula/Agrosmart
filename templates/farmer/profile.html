@@ -1,0 +1,66 @@
+{% extends "common/base.html" %}
+{% block title %}Manage Profile{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">Farmer Professional Profile</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <h5><i class="bi bi-person"></i> Personal Details</h5>
+                        <div class="row mb-3">
+                            <div class="col">
+                                <label class="form-label">Full Name</label>
+                                <input type="text" name="full_name" class="form-control" value="{{ profile.full_name if profile else '' }}" required>
+                            </div>
+                        </div>
+
+                        <hr>
+                        <h5><i class="bi bi-geo-alt"></i> Farm Information</h5>
+                        <div class="mb-3">
+                            <label class="form-label">Location Address</label>
+                            <input type="text" name="location" class="form-control" value="{{ profile.location if profile else '' }}" placeholder="Village, District, State" required>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col">
+                                <label class="form-label">Land Size (Acres)</label>
+                                <input type="number" step="0.1" name="land_size" class="form-control" value="{{ profile.land_size_acres if profile else '' }}" required>
+                            </div>
+                            <div class="col">
+                                <label class="form-label">Primary Crops</label>
+                                <input type="text" name="crop_types" class="form-control" value="{{ profile.crop_types if profile else '' }}" placeholder="Wheat, Rice, Cotton" required>
+                            </div>
+                        </div>
+
+                        <hr>
+                        <h5><i class="bi bi-bank"></i> Payment Details</h5>
+                        <div class="row mb-3">
+                            <div class="col">
+                                <label class="form-label">Bank Account Number</label>
+                                <input type="text" name="bank_account" class="form-control" value="{{ profile.bank_account_no if profile else '' }}" required>
+                            </div>
+                            <div class="col">
+                                <label class="form-label">IFSC Code</label>
+                                <input type="text" name="ifsc" class="form-control" value="{{ profile.ifsc_code if profile else '' }}" maxlength="11" required>
+                            </div>
+                        </div>
+
+                        <div class="alert {{ 'alert-info' if profile and profile.insurance_eligible else 'alert-warning' }} mt-3">
+                            <strong>Insurance Status:</strong> 
+                            {{ 'Eligible for Platform Insurance' if profile and profile.insurance_eligible else 'Pending Verification' }}
+                        </div>
+
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-success btn-lg">Save Profile Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

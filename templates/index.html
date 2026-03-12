@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgroSmart - Future of Farming</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        /* Hero section with background image overlay */
+        .hero-section { 
+            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('/static/images/farm-bg.jpg'); 
+            background-size: cover; 
+            background-position: center;
+            height: 60vh; 
+            display: flex; 
+            align-items: center; 
+            color: white; 
+        }
+        /* Feature box hover animations */
+        .feature-box { 
+            transition: transform 0.3s, box-shadow 0.3s; 
+            border: none; 
+            border-radius: 15px; 
+            background: #f8f9fa; 
+        }
+        .feature-box:hover { 
+            transform: translateY(-10px); 
+            background: #e9f7ef;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+        }
+        .logo-img { height: 60px; }
+        .text-success-dark { color: #198754; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
+    <div class="container">
+        <a class="navbar-brand d-flex align-items-center" href="/">
+    <img src="{{ url_for('static', filename='images/logo.png') }}" 
+         alt="AgroSmart Logo" 
+         style="height: 50px; width: auto;" 
+         class="me-2">
+    
+    <span class="fw-bold text-success fs-3">AgroSmart</span>
+</a>
+
+        <div class="d-flex align-items-center">
+            <div class="dropdown me-3">
+                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-translate"></i> Language
+                </button>
+                <ul class="dropdown-menu shadow">
+                    <li><a class="dropdown-item" href="{{ url_for('set_language', lang_code='en') }}">English</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('set_language', lang_code='te') }}">తెలుగు (Telugu)</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('set_language', lang_code='hi') }}">हिन्दी (Hindi)</a></li>
+                </ul>
+            </div>
+            
+            <a href="{{ url_for('auth.login') }}" class="btn btn-outline-success me-2 px-4">{{ lang_data['login'] }}</a>
+            <a href="{{ url_for('auth.register') }}" class="btn btn-success px-4">{{ lang_data['register'] }}</a>
+        </div>
+    </div>
+</nav>
+
+<header class="hero-section text-center">
+    <div class="container">
+        <h1 class="display-3 fw-bold mb-3">{{ lang_data['hero_title'] }}</h1>
+        <p class="lead fs-4">{{ lang_data['hero_subtitle'] }}</p>
+    </div>
+</header>
+
+<section class="container my-5 py-5">
+    <div class="row g-4 text-center">
+        <div class="col-md-3">
+            <div class="card p-4 h-100 feature-box shadow-sm">
+                <div class="display-4 text-success mb-3"><i class="bi bi-robot"></i></div>
+                <h4 class="fw-bold">{{ lang_data['feature_1_title'] }}</h4>
+                <p class="text-muted small">{{ lang_data['feature_1_desc'] }}</p>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card p-4 h-100 feature-box shadow-sm">
+                <div class="display-4 text-success mb-3"><i class="bi bi-file-earmark-check"></i></div>
+                <h4 class="fw-bold">{{ lang_data['feature_2_title'] }}</h4>
+                <p class="text-muted small">{{ lang_data['feature_2_desc'] }}</p>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card p-4 h-100 feature-box shadow-sm">
+                <div class="display-4 text-success mb-3"><i class="bi bi-shield-check"></i></div>
+                <h4 class="fw-bold">{{ lang_data['feature_3_title'] }}</h4>
+                <p class="text-muted small">{{ lang_data['feature_3_desc'] }}</p>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card p-4 h-100 feature-box shadow-sm">
+                <div class="display-4 text-success mb-3"><i class="bi bi-cash-stack"></i></div>
+                <h4 class="fw-bold">{{ lang_data['feature_4_title'] }}</h4>
+                <p class="text-muted small">{{ lang_data['feature_4_desc'] }}</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer class="bg-light py-4 border-top">
+    <div class="container text-center">
+        <p class="text-muted mb-0">© 2026 AgroSmart - Empowering Farmers with Technology.</p>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

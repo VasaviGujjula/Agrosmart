@@ -1,0 +1,84 @@
+{% extends "common/base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-7">
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h2 class="text-success"><i class="bi bi-shield-check"></i> Why Crop Insurance?</h2>
+                    <p class="lead">Protect your hard work from the unpredictable nature of farming.</p>
+                    <ul class="list-group list-group-flush mt-3">
+                        <li class="list-group-item"><strong>💰 Financial Security:</strong> Covers losses caused by floods, droughts, or pests.</li>
+                        <li class="list-group-item"><strong>🌱 Peace of Mind:</strong> Focus on farming without worrying about weather uncertainties.</li>
+                        <li class="list-group-item"><strong>📈 Modern Farming:</strong> Access to credit and loans becomes easier with insured crops.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-5">
+            <div class="card shadow border-success">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Apply for Protection</h5>
+                </div>
+                <div class="card-body">
+                    
+                    {# Logic to show form only if a contract exists #}
+                    {% if latest_contract_id and latest_contract_id > 0 %}
+                        
+                        <form id="insuranceForm" action="{{ url_for('insurance.enroll', contract_id=latest_contract_id) }}" method="POST">
+                            <div class="mb-3">
+                                <label class="form-label">Select Scheme</label>
+                                <select name="scheme" class="form-select" required>
+                                    <option value="">-- Choose Scheme --</option>
+                                    <option value="pmfby">PM Fasal Bima Yojana (PMFBY)</option>
+                                    <option value="wbcis">Weather Based Crop Insurance (WBCIS)</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Crop Name</label>
+                                <input type="text" name="crop_name" id="cropName" class="form-control" placeholder="e.g. Wheat, Rice" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Land Area (in Acres)</label>
+                                <input type="number" name="land_area" id="landArea" class="form-control" placeholder="0.0" step="0.1" min="0.1" required>
+                            </div>
+                            <button type="submit" class="btn btn-success w-100 fw-bold">
+                                Submit Application
+                            </button>
+                        </form>
+
+                    {% else %}
+                        {# Safe fallback if no contract is found #}
+                        <div class="alert alert-warning border-0 shadow-sm text-center">
+                            <i class="bi bi-exclamation-triangle-fill d-block mb-2" style="font-size: 2rem;"></i>
+                            <p class="mb-2 fw-bold">No Active Contract Found</p>
+                            <p class="small text-muted">You must have an active farming contract before you can apply for insurance protection.</p>
+                            <hr>
+                            <p class="small">Please visit your dashboard to manage or create your contracts.</p>
+                            <a href="{{ url_for('farmer.dashboard') }}" class="btn btn-warning w-100 fw-bold">
+                                <i class="bi bi-speedometer2"></i> Go to Dashboard
+                            </a>
+                        </div>
+                    {% endif %}
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// We add a check to make sure the form exists before adding the listener
+const insForm = document.getElementById('insuranceForm');
+if (insForm) {
+    insForm.addEventListener('submit', function(event) {
+        if (!this.checkValidity()) {
+            event.preventDefault();
+            this.reportValidity();
+        }
+    });
+}
+</script>
+{% endblock %}

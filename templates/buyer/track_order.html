@@ -1,0 +1,51 @@
+{% extends "common/base.html" %}
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold mb-0 text-dark">Logistics Tracking: #{{ contract.tracking_id or 'TRK-PENDING' }}</h3>
+        <a href="{{ url_for('buyer.dashboard') }}" class="btn btn-outline-secondary shadow-sm">
+            <i class="bi bi-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+
+    <div class="card p-5 shadow-sm border-0">
+        <div class="row text-center mb-5">
+            <div class="col-4">
+                <div class="mb-2">
+                    <i class="bi bi-box-seam fs-1 {{ 'text-success' if contract.logistics_status in ['Packed', 'In Transit', 'Delivered'] else 'text-muted' }}"></i>
+                </div>
+                <p class="fw-bold mb-0 {{ 'text-success' if contract.logistics_status in ['Packed', 'In Transit', 'Delivered'] else 'text-muted' }}">Packed</p>
+            </div>
+            
+            <div class="col-4 border-start border-end">
+    <div class="mb-2">
+        <i class="bi bi-truck fs-1 {{ 'text-success' if contract.logistics_status in ['Shipped', 'In Transit', 'Delivered'] else 'text-muted' }}"></i>
+    </div>
+    <p class="fw-bold mb-0 {{ 'text-success' if contract.logistics_status in ['Shipped', 'In Transit', 'Delivered'] else 'text-muted' }}">In Transit</p>
+</div>
+            
+            <div class="col-4">
+    <div class="mb-2">
+        <i class="bi bi-house-check fs-1 {{ 'text-success' if contract.status == 'Delivered' or contract.logistics_status == 'Delivered' else 'text-muted' }}"></i>
+    </div>
+    <p class="fw-bold mb-0 {{ 'text-success' if contract.status == 'Delivered' or contract.logistics_status == 'Delivered' else 'text-muted' }}">Delivered</p>
+</div>
+        </div>
+
+        <div class="border-top pt-4 bg-light p-3 rounded">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h6 class="text-muted text-uppercase small fw-bold">Current Logistics Status</h6>
+                    <span class="badge bg-success px-4 py-2 fs-6 shadow-sm">
+                        <i class="bi bi-info-circle"></i> {{ contract.logistics_status or 'Pending' }}
+                    </span>
+                </div>
+                <div class="col-md-6 text-md-end mt-3 mt-md-0">
+                    <p class="text-muted mb-1 small">Shipping to:</p>
+                    <h6 class="fw-bold text-dark mb-0"><i class="bi bi-geo-alt-fill text-danger"></i> {{ contract.location }}</h6>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

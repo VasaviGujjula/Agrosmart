@@ -1,0 +1,191 @@
+{% extends "common/base.html" %}
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body text-center">
+                    <h5 class="card-title text-success">🌿 AgroSmart</h5>
+                    <p class="text-muted small">Farmer Dashboard</p>
+                    <hr>
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('farmer.marketplace') }}" class="btn btn-outline-success">
+                            <i class="bi bi-search"></i> Market Deals
+                        </a>
+                        <a href="{{ url_for('farmer.insurance') }}" class="btn btn-outline-warning">
+                            <i class="bi bi-shield-check"></i> Insurance
+                        </a>
+                        <a href="{{ url_for('chatbot.sahayak_page') }}" class="btn btn-outline-success w-100 mb-2">
+                            <i class="bi bi-robot"></i> AgroBot
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-9">
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card bg-success text-white shadow">
+                        <div class="card-body">
+                            <h6>My Accepted Contracts</h6>
+                            <h2>{{ my_contracts|length }}</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card bg-info text-white shadow">
+                        <div class="card-body">
+                            <h6>Current Market Rate (Wheat)</h6>
+                            <h2>₹2,200 / Quintal</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0 text-primary">New Proposals for You</h5>
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Crop</th>
+                                <th>Quantity</th>
+                                <th>Price</th>
+                                <th>Status</th> <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for contract in my_contracts %}
+                                {% if contract.status not in ['Active', 'Signed', 'Paid', 'Completed', 'Paid & Active', 'Signed & Finalized', 'Shipped', 'Delivered'] %}
+                                <tr>
+                                    <td>{{ contract.crop_type|capitalize }}</td>
+                                    <td>{{ contract.quantity_quintals }} qtl</td>
+                                    <td>₹{{ contract.price_per_quintal }}</td>
+                                    <td><span class="badge bg-secondary">{{ contract.status }}</span></td>
+                                    <td>
+                                        <a href="{{ url_for('farmer.review_contract', contract_id=contract.id) }}" class="btn btn-success btn-sm">Review & Sign</a>
+                                    </td>
+                                </tr>
+                                {% endif %}
+                            {% else %}
+                                <tr><td colspan="5" class="text-center py-3 text-muted">No new proposals yet.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">My Active Agreements</h5>
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Crop</th>
+                                <th>Buyer</th>
+                                <th>AI Quality Check</th> <th>Status</th>
+                                <th class="text-end">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for contract in my_contracts %}
+                                {% if contract.status in ['Active', 'Signed', 'Paid', 'Completed', 'Paid & Active', 'Signed & Finalized', 'Shipped', 'Delivered'] %}
+                                <tr>
+                                    <td class="align-middle fw-bold">{{ contract.crop_type|capitalize }}</td>
+                                    <td class="align-middle">{{ contract.buyer.username if contract.buyer else "Direct Buyer" }}</td>
+                                    <td class="align-middle" style="min-width: 180px;">
+                                        {% if not contract.crop_image %}
+                                            <form action="{{ url_for('farmer.verify_quality', contract_id=contract.id) }}" 
+                                                  method="POST" enctype="multipart/form-data" class="d-inline ai-upload-form">
+                                                <input type="file" name="crop_photo" accept="image/*" class="form-control form-control-sm mb-1" required>
+                                                <button type="submit" class="btn btn-sm btn-info text-white w-100 btn-ai-verify" style="font-size: 0.7rem;">
+                                                    <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                                                    <span class="btn-text"><i class="bi bi-cpu"></i> AI Verify Quality</span>
+                                                </button>
+                                            </form>
+                                        {% else %}
+                                            <span class="badge bg-success"><i class="bi bi-cpu"></i> {{ contract.quality_score or "Verified" }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="align-middle">
+                                        <span class="badge {% if contract.status == 'Shipped' %}bg-info{% elif contract.status == 'Delivered' %}bg-success{% else %}bg-primary{% endif %}">
+                                            {{ contract.status }}
+                                        </span>
+                                    </td>
+                                    <td class="text-end align-middle">
+                                        <div class="d-flex justify-content-end gap-2">
+                                            {% if contract.status in ['Signed & Finalized', 'Paid', 'Active'] %}
+                                                <form action="{{ url_for('contracts.update_status', id=contract.id, new_status='Shipped') }}" method="POST" class="d-inline">
+                                                    <button type="submit" class="btn btn-sm btn-primary">
+                                                        <i class="bi bi-truck"></i> Mark Shipped
+                                                    </button>
+                                                </form>
+                                            {% endif %}
+                                            <a href="{{ url_for('farmer.review_contract', contract_id=contract.id) }}" class="btn btn-sm btn-light border">
+                                                View Details
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <h4 class="fw-bold mt-5 mb-3"><i class="bi bi-clock-history"></i> Fulfillment History</h4>
+            <div class="card shadow-sm border-0 mb-5">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Crop</th>
+                                <th>Buyer</th>
+                                <th>Logistics ID</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for contract in my_contracts %}
+                                {% if contract.status in ['Shipped', 'Delivered'] %}
+                                <tr>
+                                    <td>{{ contract.crop_type|capitalize }}</td>
+                                    <td>{{ contract.buyer.username if contract.buyer else "Direct Buyer" }}</td>
+                                    <td><code>{{ contract.tracking_id or 'TRK-PENDING' }}</code></td>
+                                    <td>
+                                        {% if contract.status == 'Delivered' %}
+                                            <span class="badge bg-success"><i class="bi bi-check-all"></i> Delivered</span>
+                                        {% else %}
+                                            <span class="badge bg-info text-white"><i class="bi bi-truck"></i> Shipped</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.querySelectorAll('.ai-upload-form').forEach(form => {
+    form.addEventListener('submit', function() {
+        const btn = this.querySelector('.btn-ai-verify');
+        const spinner = btn.querySelector('.spinner-border');
+        const btnText = btn.querySelector('.btn-text');
+        btn.disabled = true;
+        spinner.classList.remove('d-none');
+        btnText.innerHTML = " Analyzing...";
+    });
+});
+</script>
+{% endblock %}

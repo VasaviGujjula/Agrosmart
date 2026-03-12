@@ -1,0 +1,190 @@
+{% extends "common/base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold text-success">Buyer Procurement Dashboard</h3>
+    <a href="{{ url_for('buyer.create') }}" class="btn btn-success shadow-sm">
+        <i class="bi bi-plus-circle"></i> + Create New Contract
+    </a>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-8 mb-4">
+        <div class="card shadow-sm border-0 p-3">
+            <h6 class="text-muted fw-bold">Procurement Spending (₹)</h6>
+            <canvas id="paymentChart" height="150"></canvas>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0 mb-3">
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item d-flex justify-content-between align-items-center p-3">
+                    Total Contracts Posted
+                    <span class="badge bg-primary rounded-pill fs-6">{{ total_posted or 0 }}</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center p-3">
+                    Farmers Linked
+                    <span class="badge bg-success rounded-pill fs-6">{{ active_farmers or 0 }}</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<h4 class="fw-bold mt-5 mb-3"><i class="bi bi-people"></i> Available Farmers in your Region</h4>
+<div class="row mb-5">
+    {% for farmer in farmers %}
+    <div class="col-md-4 mb-4">
+        <div class="card shadow-sm border-0 h-100 farmer-card position-relative">
+            <div class="card-body text-center">
+                <div class="rounded-circle bg-light d-inline-block p-3 mb-3">
+                    <i class="bi bi-person-fill fs-2 text-success"></i>
+                </div>
+                <h5 class="card-title fw-bold text-dark">{{ farmer.username }}</h5>
+                <p class="text-muted mb-1 small"><i class="bi bi-geo-alt"></i> {{ farmer.location or 'Location not set' }}</p>
+                <p class="text-muted mb-1 small"><i class="bi bi-envelope"></i> {{ farmer.email }}</p>
+                <p class="text-muted mb-3 small"><i class="bi bi-telephone"></i> {{ farmer.phone or 'Contact not provided' }}</p>
+                <p class="small text-secondary mb-3"><strong>Role:</strong> {{ farmer.role|capitalize }}</p>
+                <a href="{{ url_for('buyer.create', farmer_id=farmer.id) }}" class="btn btn-outline-success btn-sm w-100 stretched-link">
+                    Create Contract with {{ farmer.username }}
+                </a>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="col-12 text-center text-muted py-4"><p>No farmers registered yet.</p></div>
+    {% endfor %}
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0 fw-bold text-dark">My Active Contracts & Proposals</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-4">Crop Type</th>
+                                <th>Farmer Information</th>
+                                <th>Quantity & Price</th>
+                                <th>Status</th>
+                                <th>Action</th> 
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if contracts %}
+                                {% for contract in contracts %}
+                                <tr>
+                                    <td class="ps-4 fw-bold text-dark">{{ contract.crop_type|capitalize }}</td>
+                                    <td>
+                                        {% if contract.farmer %}
+                                            <div class="d-flex align-items-center">
+                                                <div class="rounded-circle bg-light p-2 me-2">
+                                                    <i class="bi bi-person-check text-success"></i>
+                                                </div>
+                                                <div>
+                                                    <span class="text-success fw-bold d-block">{{ contract.farmer.username }}</span>
+                                                    <small class="text-muted"><i class="bi bi-telephone"></i> {{ contract.farmer.phone }}</small>
+                                                    {% if contract.farmer_signature %}
+                                                    <div class="mt-2">
+                                                        <small class="text-muted d-block" style="font-size: 0.7rem;">DIGITALLY SIGNED:</small>
+                                                        <img src="{{ contract.farmer_signature }}" alt="Farmer Signature" 
+                                                             style="width: 80px; height: auto; border-bottom: 1px solid #198754; background: #fdfdfd;">
+                                                    </div>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        {% else %}
+                                            <span class="badge bg-warning text-dark px-3 py-2">
+                                                <i class="bi bi-hourglass-split"></i> Public Post (Pending)
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="d-block">{{ contract.quantity_quintals }} Qtl</span>
+                                        <small class="text-muted text-success fw-bold">₹{{ contract.price_per_quintal }}/qtl</small>
+                                    </td>
+                                    <td>
+                                        {% if contract.status == 'Awaiting Downpayment' %}
+                                            <span class="badge bg-warning text-dark px-3">Awaiting Downpayment</span>
+                                        {% elif contract.status == 'Shipped' %}
+                                            <span class="badge bg-info px-3">📦 Shipped</span>
+                                        {% elif contract.status == 'Delivered' %}
+                                            <span class="badge bg-success px-3">✅ Delivered</span>
+                                        {% elif contract.status == 'Open' %}
+                                            <span class="badge bg-secondary px-3">Open</span>
+                                        {% else %}
+                                            <span class="badge bg-primary px-3">{{ contract.status }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="d-flex gap-2">
+                                            {# TRACK LOGISTICS BUTTON ADDED HERE #}
+                                            <a href="{{ url_for('buyer.track_order', contract_id=contract.id) }}" class="btn btn-sm btn-info text-white shadow-sm">
+                                                <i class="bi bi-truck"></i> Track
+                                            </a>
+
+                                            {% if contract.status == 'Awaiting Downpayment' %}
+                                                <a href="{{ url_for('buyer.payment_page', contract_id=contract.id) }}" class="btn btn-success btn-sm shadow-sm">
+                                                    <i class="bi bi-credit-card"></i> Pay Now
+                                                </a>
+                                            {% elif contract.status == 'Shipped' %}
+                                                <form action="{{ url_for('contracts.update_status', id=contract.id, new_status='Delivered') }}" method="POST">
+                                                    <button type="submit" class="btn btn-sm btn-success shadow-sm">
+                                                        <i class="bi bi-check2-circle"></i> Confirm Delivery
+                                                    </button>
+                                                </form>
+                                            {% elif contract.status == 'Delivered' or 'Paid' in contract.status or 'Signed' in contract.status %}
+                                                <a href="{{ url_for('buyer.download_receipt', contract_id=contract.id) }}" class="btn btn-outline-danger btn-sm">
+                                                    <i class="bi bi-file-earmark-pdf"></i> Receipt
+                                                </a>
+                                            {% else %}
+                                                <button class="btn btn-light btn-sm text-muted" disabled>Awaiting Farmer</button>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="5" class="text-center py-5 text-muted">
+                                        <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                                        No contract history. Select a farmer above to start!
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('paymentChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+            datasets: [{
+                label: 'Spending (₹)',
+                data: [12000, 19000, 3000, 5000],
+                borderColor: '#198754',
+                backgroundColor: 'rgba(25, 135, 84, 0.1)',
+                fill: true,
+                tension: 0.3
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true } }
+        }
+    });
+</script>
+{% endblock %}

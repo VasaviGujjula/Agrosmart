@@ -1,0 +1,68 @@
+{% extends "common/base.html" %}
+{% block title %}Company Profile{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-primary text-white py-3">
+                    <h5 class="mb-0"><i class="bi bi-building"></i> Corporate Buyer Profile</h5>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST">
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Company Name</label>
+                                <input type="text" name="company_name" class="form-control" value="{{ profile.company_name if profile else '' }}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Business Registration No.</label>
+                                <input type="text" name="registration_no" class="form-control" value="{{ profile.registration_no if profile else '' }}" required>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Primary Contact Person</label>
+                                <input type="text" name="contact_person" class="form-control" value="{{ profile.contact_person if profile else '' }}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Delivery Warehouse Address</label>
+                                <input type="text" name="delivery_address" class="form-control" value="{{ profile.delivery_address if profile else '' }}" required>
+                            </div>
+                        </div>
+
+                        <hr>
+                        <h6 class="text-primary mb-3">Procurement & Quality Settings</h6>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Crop Requirements (Comma separated)</label>
+                            <textarea name="required_crops" class="form-control" rows="2" placeholder="e.g. Organic Wheat, Soya Beans, Basmati Rice">{{ profile.required_crops if profile else '' }}</textarea>
+                        </div>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-8">
+                                <label class="form-label fw-bold">Quality Standards & Certifications</label>
+                                <input type="text" name="quality_standards" class="form-control" placeholder="e.g. ISO 22000, FSSAI Grade A" value="{{ profile.quality_standards if profile else '' }}">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Contract Model</label>
+                                <select name="contract_preference" class="form-select">
+                                    <option value="fixed_price" {{ 'selected' if profile and profile.contract_preference == 'fixed_price' }}>Fixed Price</option>
+                                    <option value="market_linked" {{ 'selected' if profile and profile.contract_preference == 'market_linked' }}>Market Linked</option>
+                                    <option value="hybrid" {{ 'selected' if profile and profile.contract_preference == 'hybrid' }}>Hybrid (Floor Price + Bonus)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end border-top pt-3">
+                            <button type="submit" class="btn btn-primary px-5 py-2">Update Company Profile</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
